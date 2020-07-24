@@ -1,0 +1,198 @@
+README
+
+The model description.
+
+In the comments and descriptions here and in other documentation 'the model' refers to
+the abstractly formulated model (the hypothesis of how the sentence production works, the theoretical model), and
+'the model class' refers to particular implementation of the model in python,
+that is based on some operationalization assumption of the theoretical model as well as
+on certain design considerations and simplifications.
+
+The model of sentence production implemented as a single class with a number of essential class methods, programming
+various hypothesised component processes of the sentence production.
+Additionally the model class contains a number of helper/convenience methods programmed to
+simplify/optimize coding/performance of the model.
+
+The parameters of the model are programmed as attributes of the class (and described in comments in __init__() method.
+The details of the model architecture can be found in the diagram in model_chart.graffle
+
+The model operates on a certain 'language', that is a tuple that consists of 4 elements:
+1. set of concepts (concepts_store, concepts inventory, semantic memory);
+2. set of words (lexicon, dictionary);
+3. semantic association matrix (semantics, meaning), i.e an array that quantifies connections between
+concepts and words. the value of association (association strength) between a given word and a given concept
+can be interpreted as probability of a given word to function as a lexicalization of a given concept or as
+percentage of meaning of the concept expressed by the given word. The matrix is scaled to [0,1]
+4. syntactic association matrix (collocations, syntax), i.e. an array that quantifies connections between the words.
+The value of association between two words can be interpreted as probability of these two words to be used
+together (as a phrase or part of the phrase). The matrix is scaled to [0,1].
+
+The language component is a separated from the model class, so different languages can be plugged in. There is one
+basic language generated within the model class (pure random language) and one pseudo-language implemented as
+a separate class (also based on random generation of concepts, but with some emulation of the words phonology).
+Further development of the model assumes programming of the more realistic languages that can be used to
+produce natural language sentences that can fit some empirical data.
+
+Essentially, the process of sentence generation is understood as a process of conversion (=lexicalization) of
+the abstract, conceptually expressed message into a linguistically encoded sentence (or a set of sentences).
+Both, messages and sentences are modelled as hierarchical trees consisting respectively of concepts (for messages)
+and of words (for sentences). Mathematically, the purpose of the model is to study the mechanism of transformation
+of one hierarchical tree (message) into another hierarchical tree (sentence) with the assumption that such a mechanism
+can be affected by certain parameters of cognition (such as availability of the working memory, or attentional control)
+and produce variation in language output as a result.
+
+==================================================================================================================
+Essential (=content as opposed to helper/convenience) methods of the model:
+
+encode_message(): the main operating cycle of the model. the method takes the message and performs
+a number of iterations (until the full message is converte), at each iteration selecting
+some fragment of the message (referred as sub-tree) and converting that fragment into a sentence.
+The method works by calling the following methods:
+    1. select_sub_tree_for_lexicalization(): the method takes the message tree and (applying criteria described
+     below) marks some of the nodes (=concepts) in the message for lexicalization in the current go.
+    2. lexicalize_sub_tree_2: takes the sub-tree and creates the sentence expressing the meaning of the sub-tree.
+    3. mark_lexicalized_sub_tree: marks the concepts in the message that have been lexicalized.
+after the sentence for a sub-tree is created it is added to the sentence set and the next iteration starts.
+
+1. select_sub_tree_for_lexicalization(): the sub-tree selection is performed as follows:
+    1.1 the head of the sub-tree is selected (method select_head_concept_for_lexicalization).
+    1.2. the depth of the sub-tree is set (based on sub-tree depth probability distribution parameter).
+    the logic behind this approach is that the speaker's knowledge of the language defines the size of chunking
+    of the message into sub-trees. E.g. the speaker knows that 2-3 levels of the message tree is acceptable, but
+    let's say 6 levels is going to be difficult to lexicalize in one go.
+    1.3. each of the concepts below the head of the sub-tree are considered for the inclusion in the sub-tree
+    one by one starting from higher level (immediately below the head of teh sub-tree)
+    and then moving to lower levels (for all levels selected at 1.2).
+    Each concept in this 'consideration' set is then either selected or not based on random choice with
+    probability of selection set as one of the parameters of the experiment.
+
+2. lexicalize_sub_tree_2: the most important and central method implementing lexicalization of the sub-tree.
+    the method takes the top concept of the sub-tree, performs semantic search of the word expressing
+    the top concept, that is referred to as 'head word'. The head word search is performed by method lexicalize().
+    The head word then converted into a single-node linguistic tree (=one-word sentence). Then the method
+    get_best_head_word_sentence() is called to build the sentence based on the head-word (ie. the sentence tree with
+    the head word at the top) that is the best expression of the meaning of the sub-tree (the best in terms of
+    semantic distance as explained below). The best_sentence is then compared with the distance_threshold and
+    if the best_sentence built for a given head word is above the threshold (i.e. is not good enough), then
+    another search of the head word is performed and the same process is repeated for the new head-word.
+
+    2.1. lexicalize(): is the basic level method implementing an instance of lexicalization of a single concept.
+        The method is used in multiple components of the model class, in particular in 2. it is used to find
+        the head word (i.e. the word that lexicalizes the top concept of the sub-tree). The method takes the
+        column of the semantics matrix adds noise component and selects the element with the highest value
+        (simulating the highest activation of the word corresponding to the given node). returns the word index
+        in the lexicon.
+    2.2. get_best_head_word_sentence(): 2nd most important method implementing a step in lexicalization.
+        the method takes the current linguistic tree (= sentence being formed), calls the method
+        select_node_for_expansion() which returns one of the frontier nodes of the linguistic tree
+        as 'expansion root' node (ie the node to which the new words will be connected) and
+        calls method get_best_expansion_root_tree() method that is supposed to find the best
+        possible word (referred to as expansion leaf) to be attached to the expansion root node of the current tree.
+        the best_expansion_root_tree (ie the current tree + found expansion leaf) is checked for the distance
+        with the message sub-tree. There are 3 possible scenarios:
+        - the expansion tree exceed the distance-threshold. in this case the lexicalization is finished.
+        - the expansion tree does not exceed the distance threshold, but is sufficiently closer to the message
+        sub-tree than the current tree (meaning it improves the expression of the message sub-tree substantially,
+        but not enough to finish the process). in this case the new word (leaf) is attached to the current tree
+        (the current tree is updated by appending the leaf) and the process is repeated for the updated current
+        tree.
+            2.2.1. select_node_for_expansion(): the method takes the current lexical tree (=partially built
+            sentence) and for each node in that tree computes the probability of being selected as expansion root.
+            The probability depends on number of children given node already has (the more children the lower the
+            probability of being selected for expansion again) and on the node level in the tree. The probability
+            for each level is set as a parameter of the experiment (and it defines the 'shape' of the linguistic
+            tree reflecting the speaker's preferences for deep structures (with multiple levels) vs wide structures
+            (with less levels, but more items per level). After computing the probabilities for each node
+            the method samples the linguistic tree in accordance with those probabilities and returns the selected
+            node (to be used as a root for the current tree expansion).
+
+            2.2.2. get_best_expansion_root_tree(): the method takes the current tree and the selected expansion root
+            and performs syntactic search (ie the search in collocations (syntactic association matrix) looking for
+            a word best associated with the expansion root node. The computationally the search is identical to the
+            semantic search of the head word, but it's applied to syntactic (rather than semantic) associations.
+            The underlying idea that is the core of the hypothesis simulated by the model is that
+            syntactic search is cognitively less expensive and provides more efficient way of producing
+            candidate words to express the meaning of the concept.
+            After finding the word the method adds it to the current tree and deems this amended tree as a candidate
+            tree. Then the method measures the distance between the candidate tree and the message sub-tree and
+            the same 3 scenarios as in 2.2 are analyzed:
+            - the distance threshold is passed (stop search and return the candidate tree as final lexicalization)
+            - the distance threshold is not passed, but the incremental threshold is passed (stop search and return
+            the candidate expansion tree)
+            - if neither threshold is passed, continue search.
+
+        all search methods have limited number of attempts to reach the distance thresholds. if after that number
+        of attempts (that is set as a parameter of the experiment reflecting persistence of the speaker), there
+        is no lexicalization success the next upper level entity is tried. E.g. if after X_max expansion leafs
+        there is no candidate expansion tree good enough, then a different expansion ROOT is selected. If a max
+        allowed number of attempts to build the sentence based on a chosen head word does not produce the sentence
+        good enough, the new head word is considered. Finally, if the limit of the number of head words is reached,
+        the LAST considered head word is provided as the final head of lexicalization and the LAST expansion root and
+        the LAST expansion leaf are applied. This can be, however, changed to reflect different strategies speakers
+        may have for the cases when they can't find the satisfactory lexicalization (one approach is to increase
+        the threshold and repeat the whole process).
+
+    Summary of #2: lexicalization of the sub-tree implemented as 3 nested loops. The outer loop selects the
+    HEAD WORD through SEMANTIC SEARCH and tries to build the best sentence based on that head word.
+    The middle loop takes the lexical tree, chooses one of its nodes as EXPANSION ROOT and then tries to
+    find the best expansion tree for that root.
+    The inner loop tries different EXPANSION LEAFS through SYNTACTIC SEARCH.
+
+3. mark_lexicalized_sub_tree(): after the sub-tree is lexicalized all its concepts are market in the message as
+lexicalized. In python terms the message tree is a list of dictionaries with each element (=node) being a dictionary
+with 5 keys (=data fields):
+code: a string the encodes the position of the node in the hierarchy (such as X020 where each digit stands for branch
+index of corresponding level)
+value: index of the concept in the concepts store.
+label: value of the concept item in the concepts store.
+is_lexicalized: a flag marking whether the concept has been lexicalized. updated after each call for lexicalization.
+is_selected: a flat used to mark concepts selected included in the currently processed sub-tree.
+
+4. DISTANCE EVALUATION
+evaluate_distance(): method is used to compute the semantic distance between the concepts tree (full message or
+message sub-tree) and lexical/linguistic tree (sentence). The distance definition is thought to be a separate
+problem and implemented as an isolated method (so different distance definition can be plugged in). For the
+next phase of the model distance definition is considered as one of the manipulated (independent) variables
+that can be studied.
+In the current version the distance is defined as a sum of distances between each of the concepts in the concepts
+tree weighted by their level in the hierarchy and the sentence.
+The notion of distance between the word and the concept is derived from the interpretation of semantic association
+strength (=weight in the semantic association matrix) as percentage of the concept meaning expressed (covered)
+by a given word. E.g. the S(i,j)=0.6 is interpreted as the i-th word expresses 60% of the meaning of the j-th
+concept. Which means that 0.4 of the meaning is not expressed and that is defined as the distance between
+the word and the concept. Thus, distance = 1 - semantic_association_value.
+The distance between the concept and the sentence is computed as a product of distances between
+the concept and each of the words in the sentence weighted by the word level in the hierarchy. E.g. if two
+independent word each express 70% of the meaning of the concept (which means each have the distance of 0.3),
+then the phrase that consists of those two words expresses 81% of the meaning (1-(1-0.7)*(1-0.7)) and the
+distance between the concept and the phrase is 0.19. Adding the third word that expresses 0.4 of the meaning
+(equivalent of the distance of 0.6) would decrease the distance  between the concept and the phrase
+to 0.11 (0.19*(1-0.4))
+
+
+====================================================================================================================
+helper/convenience methods.
+the helper/convenience methods used for 2 purposes:
+1. operations with the language and message (import the language or generate the language, generate the message,
+reset the message (for new trial) etc.
+2. interface/debug methods (such as draw_message() that prints out the message in an actual tree form, print_encoding
+that prints the sentence set in the pseudo-natural language form.
+3. lower level methods called by essential methods (such as count_non_lexicalized_concepts(): used to set the flag
+for lexicalization process to continue/stop).
+
+====================================================================================================================
+SEARCH PROCESS REPORT
+the fluency of speech (that is one of the variables studied by the model) is traditionally understood as combination
+of three features of the speech: speed, breakdowns, and repairs.
+speed (pace) = number of words per unit of time produced
+the log of the sentence production is stored as a dataframe with one row of the dataframe corresponding to one
+lexical tree expansion attempt. the row contains the following fields:
+sub_tree: what sub tree is being lexicalized with this expansion attempt
+head_word: what is the head word that the lexical tree is built for
+expansion_point: what node (position in the hierarchy is being expanded
+expansion_root: what word is currently placed in that position (word that occupies the expansion slot)
+expansion_leaf: what word is being tried as expansion leaf
+verdict: what is the decision regarding the word (accepted or not)
+distance: what is the distance between the message sub-tree and attempted expanded version of the lexical tree.
+
+this data structure shall give wide option for statistical analysis of the lexicalizaton process.
