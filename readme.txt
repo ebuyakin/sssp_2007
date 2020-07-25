@@ -18,8 +18,9 @@ The language component is a separated from the model class, so different languag
 
 Essentially, the process of sentence generation is understood as a process of conversion (=lexicalization) of the abstract, conceptually expressed message into a linguistically encoded sentence (or a set of sentences). Both, messages and sentences are modelled as hierarchical trees consisting respectively of concepts (for messages) and of words (for sentences). Mathematically, the purpose of the model is to study the mechanism of transformation of one hierarchical tree (message) into another hierarchical tree (sentence) with the assumption that such a mechanism can be affected by certain parameters of cognition (such as availability of the working memory, or attentional control) and produce variation in language output as a result.
 
-==================================================================================================================
+===========================================================================
 Essential (=content as opposed to helper/convenience) methods of the model:
+===========================================================================
 
 0. lexicalize_message(): the main operating cycle of the model. the method takes the message and performs a number of iterations (until the full message is converted), at each iteration selecting some fragment of the message (referred as sub-tree) and converting that fragment into a sentence. The method works by calling the following methods:
 
@@ -52,16 +53,18 @@ Essential (=content as opposed to helper/convenience) methods of the model:
 4. DISTANCE EVALUATION
 evaluate_distance(): method is used to compute the semantic distance between the concepts tree (full message or message sub-tree) and lexical/linguistic tree (sentence). The distance definition is thought to be a separate problem and implemented as an isolated method (so different distance definition can be plugged in). For the next phase of the model distance definition is considered as one of the manipulated (independent) variables that can be studied. In the current version the distance is defined as a sum of distances between each of the concepts in the concepts tree weighted by their level in the hierarchy and the sentence. The notion of distance between the word and the concept is derived from the interpretation of semantic association strength (=weight in the semantic association matrix) as percentage of the concept meaning expressed (covered) by a given word. E.g. the S(i,j)=0.6 is interpreted as the i-th word expresses 60% of the meaning of the j-th concept. Which means that 0.4 of the meaning is not expressed and that is defined as the distance between the word and the concept. Thus, distance = 1 - semantic_association_value. The distance between the concept and the sentence is computed as a product of distances between the concept and each of the words in the sentence weighted by the word level in the hierarchy. E.g. if two independent word each express 70% of the meaning of the concept (which means each have the distance of 0.3), then the phrase that consists of those two words expresses 81% of the meaning (1-(1-0.7)*(1-0.7)) and the distance between the concept and the phrase is 0.19. Adding the third word that expresses 0.4 of the meaning (equivalent of the distance of 0.6) would decrease the distance between the concept and the phrase to 0.11 (0.19*(1-0.4))
 
-====================================================================================================================
+===========================================================================
 helper/convenience methods.
+===========================================================================
 
 the helper/convenience methods used for 2 purposes:
 1. operations with the language and message (import the language or generate the language, generate the message, reset the message (for new trial) etc.
 2. interface/debug methods (such as draw_message() that prints out the message in an actual tree form, print_encoding that prints the sentence set in the pseudo-natural language form.
 3. lower level methods called by essential methods (such as count_non_lexicalized_concepts(): used to set the flag for lexicalization process to continue/stop).
 
-====================================================================================================================
+===========================================================================
 SEARCH PROCESS REPORT
+===========================================================================
 the fluency of speech (that is one of the variables studied by the model) is traditionally understood as combination of three features of the speech: speed, breakdowns, and repairs. speed (pace) = number of words per unit of time produced the log of the sentence production is stored as a dataframe with one row of the dataframe corresponding to one lexical tree expansion attempt. the row contains the following fields: sub_tree: what sub tree is being lexicalized with this expansion attempt head_word: what is the head word that the lexical tree is built for expansion_point: what node (position in the hierarchy is being expanded expansion_root: what word is currently placed in that position (word that occupies the expansion slot) expansion_leaf: what word is being tried as expansion leaf verdict: what is the decision regarding the word (accepted or not) distance: what is the distance between the message sub-tree and attempted expanded version of the lexical tree.
 
 this data structure shall give wide option for statistical analysis of the lexicalization process.
