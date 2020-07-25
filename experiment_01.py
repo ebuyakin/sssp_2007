@@ -12,6 +12,12 @@ however, can be applied for analysis of grammatical accuracy, if the language th
 supplemented by grammar rules.
 """
 
+
+from model_01 import Model  # re-import the latest version of the model class.
+import utils
+from utils import *
+
+
 # general import:
 import numpy as np
 import pandas as pd
@@ -20,11 +26,9 @@ from time import time, localtime, strftime
 
 import importlib  # pycharm specific module required to correctly import model.
 import model_01  # import of the model class
+
 importlib.reload(model_01)  # to ensure pycharm reloads the model after it's modified. not needed for other IDEs.
-from model_01 import Model  # re-import the latest version of the model class.
-import reglam_utilities
-importlib.reload(reglam_utilities)  # to ensure pycharm reloads the model after modified. not needed for other IDEs.
-from reglam_utilities import *
+importlib.reload(utils)  # to ensure pycharm reloads the model after modified. not needed for other IDEs.
 
 
 # environment definition:
@@ -172,6 +176,7 @@ def trials(message, n_trials=1, verbose=True, **kwargs):
     return log_trial, log_encoding_set
 
 
+# definition of the block of trials:
 def block_of_trials(corpus, n_trials=5, verbose=False, **kwargs):
     """
     block of trials for different messages
@@ -199,6 +204,7 @@ def block_of_trials(corpus, n_trials=5, verbose=False, **kwargs):
     return log_block
 
 
+# definition of the experiment function:
 def experiment(manipulations, corpus, n_trials=5, verbose=False, **kwargs):
     """
     :param manipulations: dictionary of manipulated variables and their values
@@ -238,9 +244,7 @@ def experiment(manipulations, corpus, n_trials=5, verbose=False, **kwargs):
     return experiment_report
 
 
-
-
-
+# simulations (intended to be used as commands for console execution):
 def run_simulations():
 
     message_structure = ['x', 'x0', 'x1', 'x2', 'x3', 'x01', 'x02', 'x03', 'x04',
