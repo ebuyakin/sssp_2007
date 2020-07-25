@@ -2,19 +2,11 @@ README
 
 The model description.
 
-In the comments and descriptions here and in other documentation 'the model' refers to
-the abstractly formulated model (the hypothesis of how the sentence production works, the theoretical model), and
-'the model class' refers to particular implementation of the model in python,
-that is based on some operationalization assumption of the theoretical model as well as
-on certain design considerations and simplifications.
+In the comments and descriptions here and in other documentation 'the model' refers to the abstractly formulated model (the hypothesis of how the sentence production works, the theoretical model), and 'the model class' refers to particular implementation of the model in python, that is based on some operationalization assumption of the theoretical model as well as on certain design considerations and simplifications.
 
-The model of sentence production implemented as a single class with a number of essential class methods, programming
-various hypothesised component processes of the sentence production.
-Additionally the model class contains a number of helper/convenience methods programmed to
-simplify/optimize coding/performance of the model.
+The model of sentence production implemented as a single class with a number of essential class methods, programming various hypothesised component processes of the sentence production. Additionally the model class contains a number of helper/convenience methods programmed to simplify/optimize coding/performance of the model.
 
-The parameters of the model are programmed as attributes of the class (and described in comments in __init__() method.
-The details of the model architecture can be found in the diagram in model_chart.graffle
+The parameters of the model are programmed as attributes of the class (and described in comments in __init__() method. The details of the model architecture can be found in the diagram in sssp_2007_diagram.png
 
 The model operates on a certain 'language', that is a tuple that consists of 4 elements:
 1. set of concepts (concepts_store, concepts inventory, semantic memory);
