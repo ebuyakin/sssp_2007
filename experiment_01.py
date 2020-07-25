@@ -36,7 +36,7 @@ def set_environment(message_structure=['x', 'x0', 'x1', 'x01', 'x02'], n_message
     """
     function that creates the model and import the language.
     may be used to set some of the parameters of the model provided they are not manipulated in the experiment.
-    :return: model
+    :return: model, corpus
     """
 
     m = Model()  # create new instance of the Model class.
@@ -247,11 +247,13 @@ def experiment(manipulations, corpus, n_trials=5, verbose=False, **kwargs):
 # simulations (intended to be used as commands for console execution):
 def run_simulations():
 
-    message_structure = ['x', 'x0', 'x1', 'x2', 'x3', 'x01', 'x02', 'x03', 'x04',
-                         'x10', 'x11', 'x12', 'x20', 'x21', 'x100', 'x1000',
-                         'x200', 'x201']
+    message_structure_1 = ['x', 'x0', 'x1', 'x2', 'x3', 'x01', 'x02', 'x03', 'x04',
+                           'x10', 'x11', 'x12', 'x20', 'x21', 'x100', 'x1000',
+                           'x200', 'x201']
 
-    m, corpus = set_environment(message_structure=message_structure,n_messages=25)  # create model instance and
+    message_structure_2 = ['x', 'x0', 'x1', 'x00', 'x01', 'x10', 'x11']
+
+    m, corpus = set_environment(message_structure=message_structure_2, n_messages=25)  # create model instance and
     # language instance
 
     print_messages = range(0, 25)
