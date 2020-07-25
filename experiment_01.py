@@ -238,61 +238,61 @@ def experiment(manipulations, corpus, n_trials=5, verbose=False, **kwargs):
     return experiment_report
 
 
-#%% RUN SIMULATIONS
 
 
-#%% run time environment setting:
-    
-message_structure = ['x', 'x0', 'x1', 'x2', 'x3', 'x01', 'x02', 'x03', 'x04',
-                     'x10', 'x11', 'x12', 'x20', 'x21', 'x100', 'x1000',
-                     'x200', 'x201']
 
-m, corpus = set_environment(message_structure=message_structure,n_messages=25)  # create model instance and
-# language instance
+def run_simulations():
 
-print_messages = range(0, 25)
-if True:
-    print('\ncorpus sample:\n')
-    for i in print_messages:
-        m.draw_tree(corpus[i])
+    message_structure = ['x', 'x0', 'x1', 'x2', 'x3', 'x01', 'x02', 'x03', 'x04',
+                         'x10', 'x11', 'x12', 'x20', 'x21', 'x100', 'x1000',
+                         'x200', 'x201']
 
+    m, corpus = set_environment(message_structure=message_structure,n_messages=25)  # create model instance and
+    # language instance
 
-#%% run trial and collect the simulation data:
-message_index = 1
-tr, ls = trials(corpus[message_index], n_trials=3, verbose=False,
-                distance_threshold_multiplier=0.8,
-                increment_threshold=0.3,
-                lexicalization_noise_level=0.6,
-                collocations_noise_level=1.5)
+    print_messages = range(0, 25)
+    if True:
+        print('\ncorpus sample:\n')
+        for i in print_messages:
+            m.draw_tree(corpus[i])
 
 
-#%% run block of trials and collect data:
-br = block_of_trials(corpus, n_trials=2, verbose=False,
-                     distance_threshold_multiplier=0.9,
-                     increment_threshold=0.2,
-                     lexicalization_noise_level=0.5,
-                     collocations_noise_level=0.5)
+    # run trial and collect the simulation data:
+    message_index = 1
+    tr, ls = trials(corpus[message_index], n_trials=3, verbose=False,
+                    distance_threshold_multiplier=0.8,
+                    increment_threshold=0.3,
+                    lexicalization_noise_level=0.6,
+                    collocations_noise_level=1.5)
 
 
-#%%  run experiment
+    # run block of trials and collect data:
+    br = block_of_trials(corpus, n_trials=2, verbose=False,
+                         distance_threshold_multiplier=0.9,
+                         increment_threshold=0.2,
+                         lexicalization_noise_level=0.5,
+                         collocations_noise_level=0.5)
 
-manipulations = {'distance_threshold_multiplier': [0.4, 0.6, 0.8, 1.0],  # points
-                 'increment_threshold': [0.1, 0.5],  # 9 points
-                 'lexicalization_noise_level': [1],  # 5 points
-                 'collocations_noise_level': [1],
-                 'concept_level_weights': [[1, 1, 1, 1, 1]]}  # 2 points
-"""
-manipulations = {'distance_threshold_multiplier': [0.6, 0.8],  # 7 points
-                 'increment_threshold': [0.5],  # 9 points
-                 'lexicalization_noise_level': [1],  # 5 points
-                 'collocations_noise_level': [1.5]}  # 5 points
-"""
 
-start_time, t1 = strftime('%H:%M:%S', localtime()), time()
-er = experiment(manipulations, corpus, n_trials=20)
-er.to_csv('xer_03.csv')
-end_time, t2 = strftime('%H:%M:%S', localtime()), time()
-print('time: ', start_time, ' - ', end_time, ' duration: ', float('%.2f' % (t2 - t1)))
+    # run experiment
 
-# the end
+    manipulations = {'distance_threshold_multiplier': [0.4, 0.6, 0.8, 1.0],  # points
+                     'increment_threshold': [0.1, 0.5],  # 9 points
+                     'lexicalization_noise_level': [1],  # 5 points
+                     'collocations_noise_level': [1],
+                     'concept_level_weights': [[1, 1, 1, 1, 1]]}  # 2 points
+    """
+    manipulations = {'distance_threshold_multiplier': [0.6, 0.8],  # 7 points
+                     'increment_threshold': [0.5],  # 9 points
+                     'lexicalization_noise_level': [1],  # 5 points
+                     'collocations_noise_level': [1.5]}  # 5 points
+    """
+
+    start_time, t1 = strftime('%H:%M:%S', localtime()), time()
+    er = experiment(manipulations, corpus, n_trials=20)
+    er.to_csv('xer_03.csv')
+    end_time, t2 = strftime('%H:%M:%S', localtime()), time()
+    print('time: ', start_time, ' - ', end_time, ' duration: ', float('%.2f' % (t2 - t1)))
+
+    # the end
 
