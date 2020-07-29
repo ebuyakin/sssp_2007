@@ -5,7 +5,9 @@ The model description.
 The model is designed as part of the research project on automatic and controlled sentence production.
 The purpose of the model is to emulate certain aspects of the human sentence production, primarily variation
 of linguistic form (lexical and syntactic choices made by the speaker) depending on speaker preferences/capabilities
-w.r.t. complexity, accuracy, and fluency of the language. The model is based on the paper
+w.r.t. complexity, accuracy, and fluency of the language.
+
+the paper that describes the project https://github.com/ebuyakin/sssp_2007/blob/master/automaticandcontrolled_0529.pdf
 
 The repository contains the following files:
 
@@ -20,3 +22,5 @@ The repository contains the following files:
 
 8. xer_02.csv - data collected from the simulations
 9. xer_03.csv - data collected from the simulations
+
+the paper that describes the project https://github.com/ebuyakin/sssp_2007/blob/master/automaticandcontrolled_0529.pdf
