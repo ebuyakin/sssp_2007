@@ -14,3 +14,9 @@ The repository contains the following files:
 3. experiment_01.py - code of the simulations that used the model to collect statistical data on language production.
 4. data_analysis_01.py - functions used to process and analyze collected statistical data.
 5. sssp_2007_diagram.png - map of the model functions and their interactions.
+
+6. utils.py - some helper functions
+7. work.py - scratchpad used to test some ideas for the project.
+
+8. xer_02.csv - data collected from the simulations
+9. xer_03.csv - data collected from the simulations
